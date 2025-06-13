@@ -10,106 +10,25 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
 
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 20px;
-      background-color: #001F3F;
-      color: #fff;
-    }
-    #main-container {
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
-      gap: 20px;
-    }
-    #raffle-section {
-      text-align: center;
-      max-width: 600px;
-    }
-    #header-inline {
-      margin-bottom: 20px;
-    }
-    #header-inline img {
-      max-height: 80px;
-      display: block;
-      margin: 0 auto 10px;
-    }
-    #header-inline h1 {
-      margin: 0;
-      font-size: 2em;
-    }
-    #machine-container {
-      margin-bottom: 20px;
-    }
-    #stats {
-      margin-bottom: 10px;
-    }
-    #machine {
-      display: flex;
-      justify-content: center;
-      gap: 10px;
-      margin-bottom: 10px;
-    }
-    .reel {
-      width: 100px;
-      height: 100px;
-      border: 4px solid #fff;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: #003366;
-      border-radius: 10px;
-      font-size: 60px;
-    }
-    #spin {
-      padding: 10px 20px;
-      font-size: 16px;
-      cursor: pointer;
-      background: #FF4136;
-      color: #fff;
-      border: none;
-      border-radius: 5px;
-    }
-    #spin:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-    #image-container {
-      margin-top: 20px;
-    }
-    #image-container img {
-      max-width: 250px;
-      border: 2px solid #fff;
-      border-radius: 8px;
-      background: #00264d;
-      padding: 5px;
-      display: block;
-      margin: 0 auto;
-    }
-    #winners-panel {
-      background: rgba(255, 255, 255, 0.1);
-      border: 2px solid #fff;
-      border-radius: 8px;
-      padding: 20px;
-      max-width: 300px;
-      height: fit-content;
-    }
-    #winners-panel h3:first-of-type {
-      margin-top: 0;
-      color: #FFDC00;
-    }
-    #winnerList {
-      list-style: none;
-      padding: 0;
-      margin: 10px 0 0;
-    }
-    #winnerList li {
-      margin: 5px 0;
-    }
-    .error {
-      color: #FF4136;
-    }
+    body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background-color: #001F3F; color: #fff; }
+    #main-container { display: flex; justify-content: center; align-items: flex-start; gap: 20px; }
+    #raffle-section { text-align: center; max-width: 600px; }
+    #header-inline { margin-bottom: 20px; }
+    #header-inline img { max-height: 80px; display: block; margin: 0 auto 10px; }
+    #header-inline h1 { margin: 0; font-size: 2em; }
+    #machine-container { margin-bottom: 20px; }
+    #stats { margin-bottom: 10px; }
+    #machine { display: flex; justify-content: center; gap: 10px; margin-bottom: 10px; }
+    .reel { width: 100px; height: 100px; border: 4px solid #fff; display: flex; align-items: center; justify-content: center; background: #003366; border-radius: 10px; font-size: 60px; }
+    #spin { padding: 10px 20px; font-size: 16px; cursor: pointer; background: #FF4136; color: #fff; border: none; border-radius: 5px; }
+    #spin:disabled { opacity: 0.5; cursor: not-allowed; }
+    #image-container { margin-top: 20px; }
+    #image-container img { max-width: 250px; border: 2px solid #fff; border-radius: 8px; background: #00264d; padding: 5px; display: block; margin: 0 auto; }
+    #winners-panel { background: rgba(255,255,255,0.1); border: 2px solid #fff; border-radius: 8px; padding: 20px; max-width: 300px; height: fit-content; }
+    #winners-panel h3:first-of-type { margin-top: 0; color: #FFDC00; }
+    #winnerList { list-style: none; padding: 0; margin: 10px 0 0; }
+    #winnerList li { margin: 5px 0; }
+    .error { color: #FF4136; }
   </style>
 </head>
 <body>
@@ -129,10 +48,7 @@
         <button id="spin" disabled>Pull Lever</button>
       </div>
       <div id="image-container">
-        <img
-          src="https://storage.googleapis.com/msgsndr/FnBwkz4b3IC2WV8MoxXy/media/684c2a110826247404142086.jpeg"
-          alt="Michael Kors Purse"
-        >
+        <img src="https://storage.googleapis.com/msgsndr/FnBwkz4b3IC2WV8MoxXy/media/684c2a110826247404142086.jpeg" alt="Michael Kors Purse">
       </div>
     </div>
     <div id="winners-panel">
@@ -154,13 +70,15 @@
     let winners = [];
     const fruits = ['🍒','🍋','🍊','🍉','🍇','🍓','🍌'];
 
+    // Update stats: entries left, prizes left, chance per spin
     function updateStats() {
       if (!entries.length) return;
-      const total = entries.length;
-      const remaining = remainingEntries.length;
-      const chance = remaining ? ((totalPrizes / remaining) * 100).toFixed(2) : 0;
+      const totalEntries = entries.length;
+      const entriesLeft = remainingEntries.length;
+      const prizesLeft = Math.max(0, totalPrizes - winners.length);
+      const chance = entriesLeft ? ((prizesLeft / entriesLeft) * 100).toFixed(2) : 0;
       document.getElementById('stats').textContent =
-        `Total: ${total} | Remaining: ${remaining} | Chance: ${chance}%`;
+        `Total: ${totalEntries} | Remaining: ${entriesLeft} | Prizes left: ${prizesLeft} | Chance: ${chance}%`;
     }
 
     function playWinEffects() {
@@ -217,22 +135,18 @@
             document.getElementById('spin').disabled = false;
             updateStats();
           } else {
-            const s = document.getElementById('stats');
-            s.textContent = 'No valid entries found';
-            s.classList.add('error');
+            const s = document.getElementById('stats'); s.textContent = 'No valid entries found'; s.classList.add('error');
           }
         },
         error: err => {
           console.error(err);
-          const s = document.getElementById('stats');
-          s.textContent = 'Error loading entries';
-          s.classList.add('error');
+          const s = document.getElementById('stats'); s.textContent = 'Error loading entries'; s.classList.add('error');
         }
       });
     }
 
     const googleCsvUrl =
-      'https://docs.google.com/spreadsheets/d/e/2PACX-1vRWRzFUSh9JaMR6TqzqqOrDdr-TQ_deHBG0wlEyH-0CVuNeCLpePzd4ZTCkMgUmQ0zUw3KbIfI_KbAn/pub?output=csv';
+      'https://docs.google.com/spreadsheets/d/e/2PACX-1vRWRzFUSh9JaMR6TqzqqOrDdr-TQ_deHBG0wlEyH-0CVuNeCLpePzd4ZTCkMgUmQ0zUw3KbIfI_KbAn/pub?gid=0&single=true&output=csv';
 
     loadEntriesFromGoogleSheet(googleCsvUrl);
     document.getElementById('spin').addEventListener('click', handleSpin);
