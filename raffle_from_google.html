@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>APIC Raffle – Win A purse (From Google Sheet)</title>
+  <title>APIC Raffle – Win A Purse (From Google Sheet)</title>
 
   <!-- 1) Canvas-Confetti for confetti -->
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
@@ -17,19 +17,16 @@
       background-color: #001F3F;
       color: #fff;
     }
-    /* Layout: left (raffle) + right (winners) */
     #main-container {
       display: flex;
       justify-content: center;
       align-items: flex-start;
       gap: 20px;
     }
-    /* Raffle section */
     #raffle-section {
       text-align: center;
       max-width: 600px;
     }
-    /* Header (logo + title) */
     #header-inline {
       margin-bottom: 20px;
     }
@@ -42,7 +39,6 @@
       margin: 0;
       font-size: 2em;
     }
-    /* Fruit machine reels */
     #machine-container {
       margin-bottom: 20px;
     }
@@ -79,7 +75,6 @@
       opacity: 0.5;
       cursor: not-allowed;
     }
-    /* Image below machine */
     #image-container {
       margin-top: 20px;
     }
@@ -92,7 +87,6 @@
       display: block;
       margin: 0 auto;
     }
-    /* Winners panel (right) */
     #winners-panel {
       background: rgba(255, 255, 255, 0.1);
       border: 2px solid #fff;
@@ -113,7 +107,6 @@
     #winnerList li {
       margin: 5px 0;
     }
-    /* Error styling for stats */
     .error {
       color: #FF4136;
     }
@@ -121,15 +114,11 @@
 </head>
 <body>
   <div id="main-container">
-    <!-- Left: Raffle UI -->
     <div id="raffle-section">
-      <!-- Logo + Title -->
       <div id="header-inline">
         <img src="Varidyn_Logo_4C.jpg" alt="Varidyn Logo">
         <h1>APIC Raffle – Win a Purse</h1>
       </div>
-
-      <!-- Stats / Loading / Error -->
       <div id="machine-container">
         <p id="stats">Loading entries…</p>
         <div id="machine">
@@ -139,8 +128,6 @@
         </div>
         <button id="spin" disabled>Pull Lever</button>
       </div>
-
-      <!-- Product Image / Visual -->
       <div id="image-container">
         <img
           src="https://storage.googleapis.com/msgsndr/FnBwkz4b3IC2WV8MoxXy/media/684c2a110826247404142086.jpeg"
@@ -148,8 +135,6 @@
         >
       </div>
     </div>
-
-    <!-- Right: Winners Panel -->
     <div id="winners-panel">
       <h3>Current Winner</h3>
       <h2 id="winner">&nbsp;</h2>
@@ -158,86 +143,55 @@
     </div>
   </div>
 
-  <!-- Preload jingling coin sound -->
   <audio id="win-sound" preload="auto" src="https://actions.google.com/sounds/v1/foley/coins.ogg"></audio>
 
   <script>
-    //################################################################################
-    // 1) Raffle data structures
-    //################################################################################
-    let entries = [];           // will hold {First Name, Last Name, Hospital}
-    let remainingEntries = [];  // same structure
-    let winners = [];           // drawn winners
+    // Raffle settings
+    const totalPrizes = 3;
 
-    // Fruit symbols to spin in each reel
+    let entries = [];
+    let remainingEntries = [];
+    let winners = [];
     const fruits = ['🍒','🍋','🍊','🍉','🍇','🍓','🍌'];
 
-    //################################################################################
-    // 2) Update the “Total | Remaining | Chance” text
-    //################################################################################
     function updateStats() {
-      if (!Array.isArray(entries) || entries.length === 0) return;
+      if (!entries.length) return;
       const total = entries.length;
       const remaining = remainingEntries.length;
-      const chance = remaining ? ((6 / remaining) * 100).toFixed(2) : 0;
+      const chance = remaining ? ((totalPrizes / remaining) * 100).toFixed(2) : 0;
       document.getElementById('stats').textContent =
         `Total: ${total} | Remaining: ${remaining} | Chance: ${chance}%`;
     }
 
-    //################################################################################
-    // 3) Play confetti + coin sound on winner reveal
-    //################################################################################
     function playWinEffects() {
       const audio = document.getElementById('win-sound');
       audio.currentTime = 0;
       audio.play();
-
-      confetti({
-        particleCount: 100,
-        spread: 70,
-        origin: { y: 0.6 }
-      });
+      confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
     }
 
-    //################################################################################
-    // 4) Spin one reel for a specified duration (ms)
-    //################################################################################
-    function spinReel(reelElem, duration) {
-      return new Promise(resolve => {
+    function spinReel(reel, duration) {
+      return new Promise(res => {
         const iv = setInterval(() => {
-          reelElem.textContent = fruits[
-            Math.floor(Math.random() * fruits.length)
-          ];
+          reel.textContent = fruits[Math.floor(Math.random() * fruits.length)];
         }, 100);
-        setTimeout(() => {
-          clearInterval(iv);
-          resolve();
-        }, duration);
+        setTimeout(() => { clearInterval(iv); res(); }, duration);
       });
     }
 
-    //################################################################################
-    // 5) Handle the “Pull Lever” click
-    //################################################################################
     async function handleSpin() {
       document.getElementById('spin').disabled = true;
       document.getElementById('winner').textContent = '';
-
-      // Spin reels in sequence
       await spinReel(document.getElementById('reel1'), 1000);
       await spinReel(document.getElementById('reel2'), 1500);
       await spinReel(document.getElementById('reel3'), 2000);
 
-      // Pick a random object from remainingEntries
       const idx = Math.floor(Math.random() * remainingEntries.length);
       const winnerObj = remainingEntries.splice(idx, 1)[0];
       winners.push(winnerObj);
 
-      // Build display string “First Last (Hospital)”
-      const displayText = `${winnerObj["First Name"]} ${winnerObj["Last Name"]} (${winnerObj.Hospital})`;
+      const displayText = `${winnerObj['First Name']} ${winnerObj['Last Name']} (${winnerObj.Hospital})`;
       document.getElementById('winner').textContent = displayText;
-
-      // Add to winners list
       const li = document.createElement('li');
       li.textContent = displayText;
       document.getElementById('winnerList').appendChild(li);
@@ -245,58 +199,42 @@
       playWinEffects();
       updateStats();
 
-      // Re-enable if fewer than 6 winners drawn
-      if (winners.length < 6) {
+      if (winners.length < totalPrizes) {
         document.getElementById('spin').disabled = false;
       }
     }
 
-    //################################################################################
-    // 6) Load entries from a published Google Sheet CSV URL
-    //################################################################################
-    function loadEntriesFromGoogleSheet(csvUrl) {
-      Papa.parse(csvUrl, {
+    function loadEntriesFromGoogleSheet(url) {
+      Papa.parse(url, {
         download: true,
         header: true,
-        complete: function(results) {
-          // Expect columns named exactly: "First Name", "Last Name", "Email", "Hospital"
+        complete: results => {
           entries = results.data
-            .filter(row => row["First Name"] && row["Last Name"] && row.Hospital)
-            .map(row => ({
-              "First Name": row["First Name"],
-              "Last Name": row["Last Name"],
-              Hospital: row.Hospital
-            }));
+            .filter(r => r['First Name'] && r['Last Name'] && r.Hospital)
+            .map(r => ({ 'First Name': r['First Name'], 'Last Name': r['Last Name'], Hospital: r.Hospital }));
           remainingEntries = [...entries];
-          if (entries.length > 0) {
+          if (entries.length) {
             document.getElementById('spin').disabled = false;
             updateStats();
           } else {
-            const statsEl = document.getElementById('stats');
-            statsEl.textContent = 'No valid entries found';
-            statsEl.classList.add('error');
+            const s = document.getElementById('stats');
+            s.textContent = 'No valid entries found';
+            s.classList.add('error');
           }
         },
-        error: function(err) {
-          console.error('CSV load error:', err);
-          const statsEl = document.getElementById('stats');
-          statsEl.textContent = 'Error loading entries';
-          statsEl.classList.add('error');
+        error: err => {
+          console.error(err);
+          const s = document.getElementById('stats');
+          s.textContent = 'Error loading entries';
+          s.classList.add('error');
         }
       });
     }
 
-    //################################################################################
-    // 7) INITIALIZATION
-    //    Replace the URL below with your published-as-CSV link from Google Sheets.
-    //################################################################################
     const googleCsvUrl =
-      'https://docs.google.com/spreadsheets/d/1ogSXaZfe0v2wwtLz0WcABx8JMNzlIeswE_Vxc6TRU7c/edit?usp=sharing';
+      'https://docs.google.com/spreadsheets/d/e/2PACX-1vRWRzFUSh9JaMR6TqzqqOrDdr-TQ_deHBG0wlEyH-0CVuNeCLpePzd4ZTCkMgUmQ0zUw3KbIfI_KbAn/pub?gid=0&single=true&output=csv';
 
-    // Kick off CSV load
     loadEntriesFromGoogleSheet(googleCsvUrl);
-
-    // Attach click handler
     document.getElementById('spin').addEventListener('click', handleSpin);
   </script>
 </body>
